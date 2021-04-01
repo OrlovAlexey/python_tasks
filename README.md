@@ -1,8 +1,8 @@
-# review1 task
+# Review1 task
 
-#### this is encryptor
+#### This is encryptor with different encodings and decryptor for them
 
-## launch
-use following command: python3 review1_encryption.py --input_file="input_filename.txt" [--mode={"encryption", "decryption"}] [--type={"caesar", "viginere", "vernam", "frequency_analysis"}] [--language={"eng", "rus"}]
+## Launch
+Use following command: python3 review1_encryption.py --input_file="input_filename.txt" [--mode={"encryption", "decryption"}] [--type={"caesar", "viginere", "vernam", "frequency_analysis"}] [--language={"eng", "rus"}]
 
 All encrypted/decrypted stuff will be recorded to "encryption.py"/"decryption.py"
