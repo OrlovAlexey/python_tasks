@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import argparse
 import random
 import string
@@ -125,6 +126,70 @@ def frequency_analysis(input_str, language = "eng"):
     bias = most_common_letter_index - most_commoly_used_letter_index
     return caesar_decryption(input_str, bias, language)
 
+
+class AbstractCipher:
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def encrypt(self, input_str):
+        pass
+
+    @abstractmethod
+    def decrypt(self, input_str):
+        pass
+
+class Caesar(AbstractCipher):
+    def __init__(self, language):
+        super().__init__()
+        self.language = language
+
+    def encrypt(self, input_str):
+        bias = int(input("Enter the bias, please: "))
+        return caesar(input_str, bias, self.language)
+
+    def decrypt(self, input_str):
+        bias = int(input("Enter the bias, please: "))
+        return caesar_decryption(input_str, bias, self.language)
+
+class Viginere(AbstractCipher):
+    def __init__(self, language):
+        super().__init__()
+        self.language = language
+
+    def encrypt(self, input_str):
+        keyword = str(input("Enter the keyword, please: "))
+        return vigenere(input_str, keyword, self.language)
+
+    def decrypt(self, input_str):
+        keyword = str(input("Enter the keyword, please: "))
+        return vigenere_decryption(input_str, keyword, self.language)
+
+class Vernam(AbstractCipher):
+    def __init__(self):
+        super().__init__()
+
+    def encrypt(self, input_str):
+        keyword = ''.join([chr(random.randint(ord('A'), ord('z'))) for i in range(len(input_str))])
+        print("Your generated keyword:", keyword)
+        return vernam(input_str, keyword)
+
+    def decrypt(self, input_str):
+        key_str = str(input("Enter your keystring, please: "))
+        return vernam_decryption(input_str, keystr)
+
+class Frequency_analysis(AbstractCipher):
+    def __init__(self, language):
+        super().__init__()
+        self.language = language
+
+    def encrypt(self, input_str):
+        return None
+
+    def decrypt(self, input_str):
+        return frequency_analysis(input_str, self.language)
+
+
 def main():
     parser = argparse.ArgumentParser(description="A normal console arguments parser")
     parser.add_argument("--language", choices=["eng", "rus"], default="eng", type=str, help="This is supported language(english or russian)")
@@ -136,6 +201,22 @@ def main():
     with open(args.input_file, 'r') as input_file:
         input_str = input_file.read()
     with open(args.mode + ".py", 'w') as output_file:
+        cipher: AbstractCipher
+        if args.type == "caesar":
+            cipher = Caesar(args.language)
+        elif args.type == "viginere":
+            cipher = Viginere(args.language)
+        elif args.type == "vernam":
+            cipher = Vernam()
+        elif args.type == "frequency_analysis":
+            cipher = Frequency_analysis(args.language)
+
+        if args.mode == "encrypt":
+            output_file.write(cipher.encrypt(input_str))
+        elif args.mode == "decrypt":
+            output_file.write(cipher.decrypt(input_str))
+
+        """  OLD
         if args.mode == "encryption":
             if args.type == "caesar":
                 bias = int(input("Enter the bias, please: "))
@@ -159,6 +240,8 @@ def main():
                 output_file.write(vernam_decryption(input_str, key_str))
             elif args.type == "frequency_analysis":
                 output_file.write(frequency_analysis(input_str, args.language))
+        """
+        
         print("All has been written to", args.mode + ".py")
 
 if __name__ == "__main__":
