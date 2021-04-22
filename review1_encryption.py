@@ -17,31 +17,31 @@ class AbstractCipher:
         pass
 
     @abstractmethod
-    def encrypt(self, input_str):
+    def encrypt(self, input_str: str) -> str:
         pass
 
     @abstractmethod
-    def decrypt(self, input_str):
+    def decrypt(self, input_str: str) -> str:
         pass
 
 class Caesar(AbstractCipher):
     alphabet : str
-    def __init__(self, language):
+    def __init__(self, language: str):
         super().__init__()
         if language == "eng":
             self.alphabet = alphabet_eng
         elif language == "rus":
             self.alphabet = alphabet_rus
 
-    def encrypt(self, input_str):
+    def encrypt(self, input_str: str) -> str:
         bias = int(input("Enter the bias, please: "))
         return caesar(input_str, bias)
 
-    def decrypt(self, input_str):
+    def decrypt(self, input_str: str) -> str:
         bias = int(input("Enter the bias, please: "))
         return caesar_decryption(input_str, bias)
 
-    def caesar(input_str, bias):
+    def caesar(input_str: str, bias: int) -> str:
         """ Caesar encryption algorithm
             input_str is the string to encrypt
             bias is the key (shifts the alphabet bias times to the right)
@@ -62,27 +62,27 @@ class Caesar(AbstractCipher):
         output_str = ''.join(new_str)
         return output_str
     
-    def caesar_decryption(input_str, bias):
+    def caesar_decryption(input_str: str, bias: int) -> str:
         return caesar(input_str, -bias)
 
 class Viginere(AbstractCipher):
     alphabet : str
-    def __init__(self, language):
+    def __init__(self, language: str):
         super().__init__()
         if language == "eng":
             self.alphabet = alphabet_eng
         elif language == "rus":
             self.alphabet = alphabet_rus
 
-    def encrypt(self, input_str):
+    def encrypt(self, input_str: str) -> str:
         keyword = str(input("Enter the keyword, please: "))
         return vigenere(input_str, keyword)
 
-    def decrypt(self, input_str):
+    def decrypt(self, input_str: str) -> str:
         keyword = str(input("Enter the keyword, please: "))
         return vigenere_decryption(input_str, keyword)
 
-    def vigenere(input_str, key_word):
+    def vigenere(input_str: str, key_word: str) -> str:
         """ Vigenere encryption
             input str : string
             key_word : string
@@ -108,7 +108,7 @@ class Viginere(AbstractCipher):
         output_str = ''.join(new_str)
         return output_str
 
-    def vigenere_decryption(input_str, key_word):
+    def vigenere_decryption(input_str: str, key_word: str) -> str:
         alphabet = self.alphabet
         
         reversed_key_word = []
@@ -124,16 +124,16 @@ class Vernam(AbstractCipher):
     def __init__(self):
         super().__init__()
 
-    def encrypt(self, input_str):
+    def encrypt(self, input_str: str) -> str:
         keyword = ''.join([chr(random.randint(ord('A'), ord('z'))) for i in range(len(input_str))])
         print("Your generated keyword:", keyword)
         return vernam(input_str, keyword)
 
-    def decrypt(self, input_str):
+    def decrypt(self, input_str: str) -> str:
         key_str = str(input("Enter your keystring, please: "))
         return vernam_decryption(input_str, keystr)
 
-    def vernam(input_str, key_str):
+    def vernam(input_str: str, key_str: str) -> str:
         """ Vernam encryption algo
             input_str is string to encrypt
             key_str is randomly generated key THE SAME SIZE AS input_str
@@ -146,12 +146,12 @@ class Vernam(AbstractCipher):
         result = ''.join(result)
         return result
 
-    def vernam_decryption(input_str, key_str):
+    def vernam_decryption(input_str: str, key_str: str) -> str:
         return vernam(input_str, key_str)
 
 
 class Frequency_analysis:
-    def __init__(self, language):
+    def __init__(self, language: str):
         if language == "eng":
             self.most_commoly_used_letter_index = alphabet.index('e')
             self.alphabet = alphabet_eng
@@ -159,10 +159,10 @@ class Frequency_analysis:
             self.most_commoly_used_letter_index = alphabet.index('о')
             self.alphabet = alphabet_rus
 
-    def decrypt(self, input_str):
+    def decrypt(self, input_str: str) -> str:
         return frequency_analysis(input_str)
 
-    def frequency_analysis(input_str):
+    def frequency_analysis(input_str: str) -> str:
         """ Frequency Caesar decryption algorithm based on most commoly used letter
             input_str = string to decrypt
             language = {"eng", "rus"}
