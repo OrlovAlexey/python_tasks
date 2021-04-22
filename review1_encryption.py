@@ -178,13 +178,9 @@ class Vernam(AbstractCipher):
         key_str = str(input("Enter your keystring, please: "))
         return vernam_decryption(input_str, keystr)
 
-class Frequency_analysis(AbstractCipher):
+class Frequency_analysis:
     def __init__(self, language):
-        super().__init__()
         self.language = language
-
-    def encrypt(self, input_str):
-        return None
 
     def decrypt(self, input_str):
         return frequency_analysis(input_str, self.language)
