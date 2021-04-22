@@ -195,24 +195,26 @@ def main():
 
     with open(args.input_file, 'r') as input_file:
         input_str = input_file.read()
+    
+    cipher: AbstractCipher
+    if args.type == "caesar":
+        cipher = Caesar(args.language)
+    elif args.type == "viginere":
+        cipher = Viginere(args.language)
+    elif args.type == "vernam":
+        cipher = Vernam()
+    elif args.type == "frequency_analysis":
+        cipher = Frequency_analysis(args.language)
+
+    if args.mode == "encrypt":
+        output_str = cipher.encrypt(input_str)
+    elif args.mode == "decrypt":
+        output_str = cipher.decrypt(input_str)
+
     with open(args.mode + ".py", 'w') as output_file:
-        cipher: AbstractCipher
-        if args.type == "caesar":
-            cipher = Caesar(args.language)
-        elif args.type == "viginere":
-            cipher = Viginere(args.language)
-        elif args.type == "vernam":
-            cipher = Vernam()
-        elif args.type == "frequency_analysis":
-            cipher = Frequency_analysis(args.language)
+            output_file.write(output_str)
 
-        if args.mode == "encrypt":
-            output_file.write(cipher.encrypt(input_str))
-        elif args.mode == "decrypt":
-            output_file.write(cipher.decrypt(input_str))
-
-        
-        print("All has been written to", args.mode + ".py")
+    print("All has been written to ", args.mode + ".py")
 
 if __name__ == "__main__":
     main()
