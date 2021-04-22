@@ -5,7 +5,7 @@ import string
 
 
 alphabet_rus = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-alphabet_eng = [letter for letter in string.ascii_lowercase]
+alphabet_eng = string.ascii_lowercase
 
 class TextError(Exception):
     def __init__(self, text):
@@ -216,31 +216,6 @@ def main():
         elif args.mode == "decrypt":
             output_file.write(cipher.decrypt(input_str))
 
-        """  OLD
-        if args.mode == "encryption":
-            if args.type == "caesar":
-                bias = int(input("Enter the bias, please: "))
-                output_file.write(caesar(input_str, bias, args.language))
-            elif args.type == "viginere":
-                keyword = str(input("Enter the keyword, please: "))
-                output_file.write(viginere(input_str, keyword, args.language))
-            elif args.type == "vernam":
-                keyword = ''.join([chr(random.randint(ord('A'), ord('z'))) for i in range(len(input_str))])
-                print("Your generated keyword:", keyword)
-                output_file.write(vernam(input_str, keyword))
-        elif args.mode == "decryption":
-            if args.type == "caesar":
-                bias = int(input("Enter the bias, please: "))
-                output_file.write(caesar_decryption(input_str, bias, args.language))
-            elif args.type == "viginere":
-                keyword = str(input("Enter the keyword, please: "))
-                output_file.write(viginere_decryption(input_str, keyword, args.language))
-            elif args.type == "vernam":
-                key_str = str(input("Enter your keystring, please: "))
-                output_file.write(vernam_decryption(input_str, key_str))
-            elif args.type == "frequency_analysis":
-                output_file.write(frequency_analysis(input_str, args.language))
-        """
         
         print("All has been written to", args.mode + ".py")
 
