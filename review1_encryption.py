@@ -11,7 +11,7 @@ class TextError(Exception):
     def __init__(self, text):
         self.txt = text
 
-def caesar(input_str, bias = 3, language = "eng"):
+def caesar(input_str, bias, language = "eng"):
     """ Caesar encryption algorithm
         input_str is the string to encrypt
         bias is the key (shifts the alphabet bias times to the right)
@@ -37,7 +37,7 @@ def caesar(input_str, bias = 3, language = "eng"):
     output_str = ''.join(new_str)
     return output_str
 
-def caesar_decryption(input_str, bias = 3, language = "eng"):
+def caesar_decryption(input_str, bias, language = "eng"):
     return caesar(input_str, -bias, language)
 
 
