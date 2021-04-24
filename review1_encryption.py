@@ -1,5 +1,6 @@
 from abc import abstractmethod
 import argparse
+from os.path import exists
 import random
 import string
 
@@ -147,7 +148,7 @@ class Vernam(AbstractCipher):
             key_str is randomly generated key THE SAME SIZE AS input_str
         """
         if len(key_str) < len(input_str):
-            raise Exception("Keystring is too small")
+            raise TextError("Keystring is too small")
         result = []
         for i in range(len(input_str)):
             result.append(chr(ord(input_str[i]) ^ ord(key_str[i])))
@@ -160,23 +161,103 @@ class Vernam(AbstractCipher):
 
 class Frequency_analysis:
     name = "frequency_analysis"
+    english_sample_text_file = "eng_text_example.txt"
+    russian_sample_text_file = "rus_text_example.txt"
+    english_output_file = "english_letters_frequency.txt"
+    russian_output_file = "russian_letters_frequency.txt"
     def __init__(self, language: str):
         if language == eng_tag:
             self.alphabet = alphabet_eng
-            self.most_commoly_used_letter_index = self.alphabet.index('e')
         elif language == rus_tag:
             self.alphabet = alphabet_rus
-            self.most_commoly_used_letter_index = self.alphabet.index('о')
+
+        if language == eng_tag and exists(self.english_output_file):
+            pass
+        elif language == rus_tag and exists(self.russian_output_file):
+            pass
+        else:
+            if language == eng_tag:
+                with open(self.english_sample_text_file, 'r') as sample:
+                    text = sample.read()
+            elif language == rus_tag:
+                with open(self.russian_sample_text_file, 'r') as sample:
+                    text = sample.read()
+            if not text:
+                raise TextError("Empty sample text file")
+            frequency_of_letters = self.count_frequency_of_letters_in_text(text)
+            output = ""
+            for letter_freq in frequency_of_letters:
+                output += str(letter_freq)
+                output += '\n'
+            if language == eng_tag:
+                with open(self.english_output_file, 'w') as output_file:
+                    output_file.write(output)
+            elif language == rus_tag:
+                with open(self.russian_output_file, 'w') as output_file:
+                    output_file.write(output)
 
     def decrypt(self, input_str: str) -> str:
         return self.frequency_analysis(input_str)
 
+    def count_frequency_of_letters_in_text(self, text: str) -> list:
+        count_of_letters = [0] * len(self.alphabet)
+        all_letters = 0
+        for letter in text:
+            if letter.lower() in self.alphabet:
+                count_of_letters[self.alphabet.index(letter.lower())] += 1
+                all_letters += 1
+        return [x / all_letters for x in count_of_letters]
+
     def frequency_analysis(self, input_str: str) -> str:
-        """ Frequency Caesar decryption algorithm based on most commoly used letter
+        """ Frequency Caesar decryption algorithm based on MSE between frequency of letters in text and mean frequency
             input_str = string to decrypt
             language = {"eng", "rus"}
         """
         alphabet = self.alphabet
+        alphabet_length = len(alphabet)
+        
+        if alphabet == alphabet_eng:
+            output_file = self.english_output_file
+            lang_tag = eng_tag
+        elif alphabet == alphabet_rus:
+            output_file = self.russian_output_file
+            lang_tag = rus_tag
+
+        standart_letter_freq = [0] * alphabet_length
+        with open(output_file, 'r') as file:
+            for i in range(alphabet_length):
+                standart_letter_freq[i] = float(file.readline())
+
+        input_letter_freq = self.count_frequency_of_letters_in_text(input_str)
+        best_bias = 0
+        best_MSE = 100
+        for bias in range(alphabet_length):
+            MSE = 0
+            for i in range(alphabet_length):
+                MSE += (input_letter_freq[i] - standart_letter_freq[(i + bias) % alphabet_length]) ** 2
+            MSE /= alphabet_length
+
+            if MSE < best_MSE:
+                best_MSE = MSE
+                best_bias = bias
+
+        return Caesar.caesar_decryption(Caesar(lang_tag), input_str, -best_bias)
+    
+        best_bias = -best_bias
+        alphabet_length = len(alphabet)
+        new_str = []
+        for letter in input_str:
+            if letter in alphabet:
+                new_str.append(alphabet[(alphabet.index(letter) + best_bias) % alphabet_length])
+            elif letter in [i.upper() for i in alphabet]:
+                new_str.append(alphabet[(alphabet.index(letter.lower()) + best_bias) % alphabet_length].upper())
+            elif letter.isalpha():
+                raise TextError("Wrong alphabet")
+            else:
+                new_str.append(letter)
+        output_str = ''.join(new_str)
+        return output_str
+        """ OLD
         most_commoly_used_letter_index = self.most_commoly_used_letter_index
 
         frequency_rate = [0] * len(alphabet)
@@ -187,7 +268,6 @@ class Frequency_analysis:
         most_common_letter_index = frequency_rate.index(max(frequency_rate))
         bias = -(most_common_letter_index - most_commoly_used_letter_index)
         
-        """caesar(input_str, bias)"""
         alphabet_length = len(alphabet)
         new_str = []
         for letter in input_str:
@@ -201,6 +281,7 @@ class Frequency_analysis:
                 new_str.append(letter)
         output_str = ''.join(new_str)
         return output_str
+        """
 
 
 def main():
