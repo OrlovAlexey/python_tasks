@@ -216,6 +216,8 @@ class Frequency_analysis:
             if letter.lower() in self.alphabet:
                 count_of_letters[self.alphabet.index(letter.lower())] += 1
                 all_letters += 1
+        if all_letters == 0:
+            return count_of_letters
         return [x / all_letters for x in count_of_letters]
 
     def frequency_analysis(self, input_str: str) -> str:
@@ -251,9 +253,6 @@ class Frequency_analysis:
                 best_MSE = MSE
                 best_bias = bias
 
-        return Caesar.caesar_decryption(Caesar(lang_tag), input_str, -best_bias)
-    
-        best_bias = -best_bias
         alphabet_length = len(alphabet)
         new_str = []
         for letter in input_str:
