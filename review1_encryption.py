@@ -9,6 +9,9 @@ alphabet_rus = "абвгдеёжзийклмнопрстуфхцчшщъыьэю
 alphabet_eng = string.ascii_lowercase
 eng_tag = "eng"
 rus_tag = "rus"
+mode1 = "encryption"
+mode2 = "decryption"
+max_block_size = 500
 
 class TextError(Exception):
     def __init__(self, text):
@@ -32,20 +35,20 @@ class AbstractCipher:
 class Caesar(AbstractCipher):
     alphabet : str
     name = "caesar"
+    bias: int
     def __init__(self, language: str):
         super().__init__()
         if language == eng_tag:
             self.alphabet = alphabet_eng
         elif language == rus_tag:
             self.alphabet = alphabet_rus
+        self.bias = int(input("Enter the bias, please: "))
 
     def encrypt(self, input_str: str) -> str:
-        bias = int(input("Enter the bias, please: "))
-        return self.caesar(input_str, bias)
+        return self.caesar(input_str, self.bias)
 
     def decrypt(self, input_str: str) -> str:
-        bias = int(input("Enter the bias, please: "))
-        return self.caesar_decryption(input_str, bias)
+        return self.caesar_decryption(input_str, self.bias)
 
     def caesar(self, input_str: str, bias: int) -> str:
         """ Caesar encryption algorithm
@@ -75,20 +78,20 @@ class Caesar(AbstractCipher):
 class Viginere(AbstractCipher):
     alphabet : str
     name = "viginere"
+    key_word: str
     def __init__(self, language: str):
         super().__init__()
         if language == eng_tag:
             self.alphabet = alphabet_eng
         elif language == rus_tag:
             self.alphabet = alphabet_rus
+        self.key_word = str(input("Enter the keyword, please: "))
 
     def encrypt(self, input_str: str) -> str:
-        keyword = str(input("Enter the keyword, please: "))
-        return self.vigenere(input_str, keyword)
+        return self.vigenere(input_str, self.key_word)
 
     def decrypt(self, input_str: str) -> str:
-        keyword = str(input("Enter the keyword, please: "))
-        return self.vigenere_decryption(input_str, keyword)
+        return self.vigenere_decryption(input_str, self.key_word)
 
     def vigenere(self, input_str: str, key_word: str) -> str:
         """ Vigenere encryption
@@ -97,7 +100,7 @@ class Viginere(AbstractCipher):
             language : "eng", "rus"
         """
         alphabet = self.alphabet
-
+        
         key_word = key_word.lower()
         alphabet_length = len(alphabet)
         new_str = []
@@ -130,17 +133,24 @@ class Viginere(AbstractCipher):
 
 class Vernam(AbstractCipher):
     name = "vernam"
+    first: int
+    key_str: str
     def __init__(self):
         super().__init__()
+        self.first = 0
 
     def encrypt(self, input_str: str) -> str:
-        keyword = ''.join([chr(random.randint(ord('A'), ord('z'))) for i in range(len(input_str))])
-        print("Your generated keyword:", keyword)
-        return self.vernam(input_str, keyword)
+        if self.first == 0:
+            self.key_str = ''.join([chr(random.randint(ord('A'), ord('z'))) for i in range(max_block_size)])
+            print("Your generated keyword:", self.key_str)
+        self.first += 1
+        return self.vernam(input_str, self.key_str)
 
     def decrypt(self, input_str: str) -> str:
-        key_str = str(input("Enter your keystring, please: "))
-        return self.vernam_decryption(input_str, key_str)
+        if self.first == 0:
+            self.key_str = str(input("Enter your keystring, please: "))
+        self.first += 1
+        return self.vernam_decryption(input_str, self.key_str)
 
     def vernam(self, input_str: str, key_str: str) -> str:
         """ Vernam encryption algo
@@ -257,36 +267,16 @@ class Frequency_analysis:
                 new_str.append(letter)
         output_str = ''.join(new_str)
         return output_str
-        """ OLD
-        most_commoly_used_letter_index = self.most_commoly_used_letter_index
 
-        frequency_rate = [0] * len(alphabet)
-        for letter in input_str.lower():
-            if letter.isalpha():
-                frequency_rate[alphabet.index(letter)] += 1
-                
-        most_common_letter_index = frequency_rate.index(max(frequency_rate))
-        bias = -(most_common_letter_index - most_commoly_used_letter_index)
-        
-        alphabet_length = len(alphabet)
-        new_str = []
-        for letter in input_str:
-            if letter in alphabet:
-                new_str.append(alphabet[(alphabet.index(letter) + bias) % alphabet_length])
-            elif letter in [i.upper() for i in alphabet]:
-                new_str.append(alphabet[(alphabet.index(letter.lower()) + bias) % alphabet_length].upper())
-            elif letter.isalpha():
-                raise TextError("Wrong alphabet")
-            else:
-                new_str.append(letter)
-        output_str = ''.join(new_str)
-        return output_str
-        """
-
-
+def encrypt_block(block: str, mode: str, cipher: AbstractCipher) -> str:
+    output_block: str
+    if mode == mode1:
+        output_block = cipher.encrypt(block)
+    elif mode == mode2:
+        output_block = cipher.decrypt(block)
+    return output_block
+    
 def main():
-    mode1 = "encryption"
-    mode2 = "decryption"
     parser = argparse.ArgumentParser(description="A normal console arguments parser")
     parser.add_argument("--language", choices=[eng_tag, rus_tag], default=eng_tag, type=str, help="This is supported language(english or russian)")
     parser.add_argument("--mode", choices=[mode1, mode2], default=mode1, type=str, help="This is mode of cryptography(encryption or decryption)")
@@ -294,9 +284,7 @@ def main():
     parser.add_argument("--input_file", required=True, type=str, help="This a path to text-file to encrypt/decrypt")
     args = parser.parse_args()
 
-    with open(args.input_file, 'r') as input_file:
-        input_str = input_file.read()
-    
+   
     cipher: AbstractCipher
     if args.type == Caesar.name:
         cipher = Caesar(args.language)
@@ -307,16 +295,19 @@ def main():
     elif args.type == Frequency_analysis.name:
         cipher = Frequency_analysis(args.language)
 
-    output_str: str
-    if args.mode == mode1:
-        output_str = cipher.encrypt(input_str)
-    elif args.mode == mode2:
-        output_str = cipher.decrypt(input_str)
+    with open(args.mode + ".txt", 'w') as output_file:
+        pass
+    
+    with open(args.input_file, 'r') as input_file:
+        while True:
+            line = input_file.readline()
+            if not line:
+                break
+            encrypted_line = encrypt_block(line, args.mode, cipher)
+            with open(args.mode + ".txt", 'a') as output_file:
+                output_file.write(encrypted_line)
 
-    with open(args.mode + ".py", 'w') as output_file:
-        output_file.write(output_str)
-
-    print("All has been written to ", args.mode + ".py")
+    print("All has been written to ", args.mode + ".txt")
 
 if __name__ == "__main__":
     main()
